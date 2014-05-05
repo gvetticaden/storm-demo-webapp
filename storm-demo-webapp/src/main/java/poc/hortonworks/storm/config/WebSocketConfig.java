@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		StompBrokerRelayRegistration registration = registry.enableStompBrokerRelay("/queue", "/topic");
-		registration.setRelayHost("gvetticaden-kafka-cluster.secloud.hortonworks.com");
+		registration.setRelayHost("hadoopsummit-kafka2.secloud.hortonworks.com");
 		registration.setRelayPort(61613);
 		registry.setApplicationDestinationPrefixes("/app");
 	}

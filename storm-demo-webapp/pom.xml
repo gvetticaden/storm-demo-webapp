@@ -10,11 +10,53 @@
 	<properties>
 		<org.springframework-version>4.0.0.BUILD-SNAPSHOT</org.springframework-version>
 		<org.springframework.security-version>3.2.0.RC2</org.springframework.security-version>
-		<hbase.version>0.96.0.2.0.6.0-76-hadoop2</hbase.version>
+		<hbase.version>0.98.0.2.1.1.0-385-hadoop2</hbase.version>
 		<junit.version>4.5</junit.version>
+		<stream.simulator.version>1.0-SNAPSHOT</stream.simulator.version>
 	</properties>
 
 	<dependencies>
+	
+	
+		<!-- Truck Topology Domain Objects -->
+		<dependency>
+  			<groupId>poc.hortonworks.domain</groupId>
+  			<artifactId>transport-domain</artifactId>
+  			<version>1.0.0-SNAPSHOT</version>		
+		</dependency>
+		
+		<!-- HBase client version -->
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-client</artifactId>
+			<version>${hbase.version}</version>
+		</dependency>		
+		
+	
+		<!-- Stream Simulator -->
+		<dependency>
+			<groupId>com.hortonworks</groupId>
+			<artifactId>stream-simulator</artifactId>
+			<version>${stream.simulator.version}</version>		
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>				
+				</exclusion>
+			</exclusions>
+		</dependency>	
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-remote_2.10</artifactId>
+			<version>2.3-M1</version>
+		</dependency>		
+		
+	
+		<!-- Spring Dependencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -46,6 +88,30 @@
 			<artifactId>spring-websocket</artifactId>
 			<version>${org.springframework-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${org.springframework.security-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${org.springframework.security-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${org.springframework.security-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-jdbc</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>		
+		
+		
+		<!-- Other -->
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -60,7 +126,6 @@
 			<version>2.2.1</version>
 		</dependency>
 
-		<!-- Required when the "stomp-broker-relay" profile is enabled -->
 		<dependency>
 			<groupId>org.projectreactor</groupId>
 			<artifactId>reactor-tcp</artifactId>
@@ -103,68 +168,15 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-			<version>${org.springframework.security-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>${org.springframework.security-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-			<version>${org.springframework.security-version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-jdbc</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-  			<groupId>poc.hortonworks.domain</groupId>
-  			<artifactId>transport-domain</artifactId>
-  			<version>1.0.0-SNAPSHOT</version>		
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase-client</artifactId>
-			<version>${hbase.version}</version>
-		</dependency>		
-		
+
+		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
-		</dependency>		
-		
-		<dependency>
-			<groupId>com.hortonworks</groupId>
-			<artifactId>stream-simulator</artifactId>
-			<version>1.0-SNAPSHOT</version>		
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>				
-				</exclusion>
-			</exclusions>
-		</dependency>	
-		
-		<dependency>
-			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-remote_2.10</artifactId>
-			<version>2.3-M1</version>
-		</dependency>		
+		</dependency>			
+	
 
 	</dependencies>
 

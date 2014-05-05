@@ -24,6 +24,8 @@ import com.hortonworks.streaming.impl.domain.transport.TruckConfiguration;
 @Service
 public class DemoResetService {
 	
+	private static final String HBASE_ZOOKEEPER_HOST = "hadoopsummit-hdp21-master2.secloud.hortonworks.com";
+
 	private static Logger LOG = Logger.getLogger(DemoResetService.class);
 	
 	private static final  String EVENTS_TABLE_NAME = "driver_dangerous_events";
@@ -89,7 +91,7 @@ public class DemoResetService {
 	private Configuration constructConfiguration() throws Exception {
 		Configuration config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum",
-				"gvetticaden-central3.secloud.hortonworks.com");
+				HBASE_ZOOKEEPER_HOST);
 		config.set("hbase.zookeeper.property.clientPort", "2181");
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
 		//HBaseAdmin.checkHBaseAvailable(config);
