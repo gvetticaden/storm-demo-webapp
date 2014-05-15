@@ -6,13 +6,13 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <link href="../assets/lib/bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="../assets/common/stormdemo.css" rel="stylesheet">
-	 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <!--[if lt IE 9]>
+    <script src="../assets/lib/html5shiv/dist/html5shiv.js"></script>
+    <![endif]-->
   </head>
   <body>
 
-	 
-	 
-	 <div class="container">
+    <div class="container">
       <div id="heading" class="masthead">
         <div class="pull-right">
           <span class="text-info" data-bind="text: username"><em></em></span>&nbsp;
@@ -21,7 +21,6 @@
         </div>
         <h3 class="muted">Driver Monitoring Application</h3>
       </div>
-      <div id="map"> </div>
       <div id="main-content">
         <table class="table table-striped">
           <thead>
@@ -57,7 +56,7 @@
           </ul>
         </div>
       </div>
-        </div>	 
+        </div>
 
     <!-- 3rd party -->
     <script src="../assets/lib/jquery/jquery.js"></script>
@@ -65,35 +64,20 @@
     <script src="../assets/lib/knockout/knockout.js"></script>
     <script src="../assets/lib/sockjs/sockjs.js"></script>
     <script src="../assets/lib/stomp/dist/stomp.js"></script>
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
 
     <!-- application -->
     <script src="truck.js"></script>
     <script type="text/javascript">
-      
-    var map = L.map('map').setView([38.523884, -92.159845], 7);
-    
-    L.tileLayer('http://{s}.tiles.mapbox.com/v3/gvetticaden.i8ce225f/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        maxZoom: 18
-    }).addTo(map);  
-    
-  
-
       (function() {
         var socket = new SockJS('/storm-demo-web-app/monitor');
         var stompClient = Stomp.over(socket);
-        var appModel = new ApplicationModel(stompClient, L);
+        var appModel = new ApplicationModel(stompClient);
         ko.applyBindings(appModel);
 
         appModel.connect();
         appModel.pushNotification("No Alerts Yet....");
-      })();    
-
-    
+      })();
     </script>
-    
-    
 
   </body>
 </html>

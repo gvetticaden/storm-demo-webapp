@@ -33,5 +33,3 @@ body {
 background: #972F2C
 
 }
-
-#map { height: 500px; }

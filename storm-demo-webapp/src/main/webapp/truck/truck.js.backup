@@ -1,11 +1,10 @@
 
-function ApplicationModel(stompClient, L) {
+function ApplicationModel(stompClient) {
   var self = this;
 
   self.username = ko.observable();
   self.driverMontior = ko.observable(new DriverMonitorModel());
   self.notifications = ko.observableArray();
-  self.leaf = L;
 
   self.connect = function() {
     stompClient.connect('', '', function(frame) {
@@ -21,13 +20,9 @@ function ApplicationModel(stompClient, L) {
       
       //Update page with any new dangerous event that came in
       //stompClient.subscribe("/topic/driver_infraction_events", function(message) {
-      stompClient.subscribe("/topic/driver_infraction_events", function(message) {
+      stompClient.subscribe("/topic/driver_events", function(message) {
            self.driverMontior().processDangerousEvent(JSON.parse(message.body));
        });
-      
-      stompClient.subscribe("/topic/driver_events", function(message) {
-          self.driverMontior().renderOnMap(JSON.parse(message.body));
-      });      
       
       //Update page with any new alerts
       stompClient.subscribe("/topic/driver_alert_notifications", function(message) {
@@ -58,8 +53,6 @@ function DriverMonitorModel() {
   self.rows = ko.observableArray();
 
   var rowLookup = {};
-  
-  var driverOnMapLookup = {};
 
   self.loadDangerousEvents = function(positions) {
 	  for ( var i = 0; i < positions.length; i++) {
@@ -88,70 +81,9 @@ function DriverMonitorModel() {
 	    } else {
 	    	self.loadDangerousEvent(driverEvent);
 	    }
-	  }; 
-	  
-
-  self.renderOnMap = function(driverEvent) {
-	  if (driverOnMapLookup.hasOwnProperty(driverEvent.truckDriverEventKey)) {
-		  var driverOnMap = driverOnMapLookup[driverEvent.truckDriverEventKey].driverOnMap;
-		  var previousDriverEvent = driverOnMapLookup[driverEvent.truckDriverEventKey].driverEvent;
-		  
-		  driverOnMap.setLatLng([driverEvent.latitude, driverEvent.longitude]);
-		  
-		  var driverMsg;
-		  if(driverEvent.numberOfInfractions == previousDriverEvent.numberOfInfractions) {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, previousDriverEvent.infractionEvent);
-		  
-		  } else {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent);
-		  }
-		  
-		  driverOnMapLookup[driverEvent.truckDriverEventKey].driverEvent = driverEvent;
-		  
-		  driverOnMap.bindPopup(driverMsg);
-		  if(driverEvent.infractionEvent != 'Normal') {
-			  driverOnMap.setRadius(driverOnMap.getRadius() * 1.1);
-			  driverOnMap.openPopup();
-		  } else {
-			  driverOnMap.closePopup();
-		  }
-			 
-	  } else {
-		  self.renderNewDriverOnMap(driverEvent);
-	  }
-  }
-  
-  self.renderNewDriverOnMap = function (driverEvent) {
-	  
-	    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-	  	var driverOnMap = L.circle([driverEvent.latitude, driverEvent.longitude], 10000, {
-	        color: randomColor,
-	        fillColor: randomColor,
-	        fillOpacity: 0.5
-	    }).addTo(map);   
-	  	
-		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent);
-	  	driverOnMap.bindPopup(driverMsg);
-	  	var driverDetails = {driverEvent:driverEvent, driverOnMap:driverOnMap};
-	  	driverOnMapLookup[driverEvent.truckDriverEventKey] = driverDetails;	  
-	    
-  
-  }; 
-  
-  self.constructMessage = function(driverId, numberOfInfractions, lastViolation) {
-	  var message= " <div> " +
-	    "<b>Driver ID: </b> " + driverId +
-	    "</br>" + 
-	    "<b>Violation Count: </b>" + numberOfInfractions +
-	    "</br>" +
-	    "<b>Last Violation: </b>" + lastViolation +
-	    "</br>" +
-	    "</div>";
-	  return message;
-	};
+	  };  
 
 };
-
 
 function DriverRow(data) {
   var self = this;
