@@ -14,9 +14,11 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import poc.hortonworks.storm.demoreset.web.DemoResetParam;
+import poc.hortonworks.storm.streamgenerator.service.StreamGeneratorService;
 
 import com.hortonworks.streaming.impl.domain.transport.Truck;
 import com.hortonworks.streaming.impl.domain.transport.TruckConfiguration;
@@ -34,10 +36,13 @@ public class DemoResetService {
 	private HBaseAdmin admin;
 	private HTable driverEventsTable;
 	private HTable driverEventsCountTable;
+
+	private StreamGeneratorService streamService;
 	
-	
-	public DemoResetService() {
+	@Autowired
+	public DemoResetService(StreamGeneratorService streamService) {
 		try {
+			this.streamService = streamService;
 			Configuration config = constructConfiguration();
 			admin = createHBaseAdmin(config);
 			HConnection connection = HConnectionManager.createConnection(config);
@@ -55,10 +60,14 @@ public class DemoResetService {
 			truncateHBaseTables();
 		}
 		resetStreamingSimulator();
+		streamService.resetMapCords();
 	}
 	
 	public void resetStreamingSimulator() {
-		TruckConfiguration.reset();
+		TruckConfiguration.initialize();
+		TruckConfiguration.configureInitialDrivers();
+		TruckConfiguration.configureStartingPoints();	
+	
 	}
 	
 	public void truncateHBaseTables() {

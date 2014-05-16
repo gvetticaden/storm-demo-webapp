@@ -24,6 +24,8 @@ import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 import poc.hortonworks.domain.transport.TruckDriverViolationEvent;
+import poc.hortonworks.storm.streamgenerator.service.StreamGeneratorService;
+import poc.hortonworks.storm.truck.DriverEventsResponse;
 import poc.hortonworks.storm.truck.service.DriverEventsService;
 
 
@@ -33,17 +35,32 @@ public class TruckDriverEventsController {
 	private static final Log logger = LogFactory.getLog(TruckDriverEventsController.class);
 
 	private final DriverEventsService driverEventsService;
+
+	private StreamGeneratorService streamingService;
+	
 	
 
 
 	@Autowired
-	public TruckDriverEventsController(DriverEventsService driverEventsService) {
+	public TruckDriverEventsController(DriverEventsService driverEventsService, StreamGeneratorService streamingService) {
 		this.driverEventsService = driverEventsService;
+		this.streamingService = streamingService;
 	}
 
 	@SubscribeMapping("/driverEvents")
-	public Collection<TruckDriverViolationEvent> getDriverEvents() throws Exception {
-		return driverEventsService.getLatestEventsForAllDrivers();
+	public DriverEventsResponse getDriverEvents() throws Exception {
+		DriverEventsResponse response = new DriverEventsResponse();
+		response.setViolationEvents(driverEventsService.getLatestEventsForAllDrivers());
+		response.setStartLat(streamingService.centerCoordinatesLat);
+		response.setStartLong(streamingService.centerCoordinatesLong);
+		response.setZoomLevel(streamingService.zoomLevel);
+		response.setTruckSymbolSize(streamingService.truckSymbolSize);
+		
+		logger.info("Start Lat is " + response.getStartLat());
+		logger.info("Start Long is " + response.getStartLong());
+		logger.info("Zoom level is : " + response.getZoomLevel());
+		logger.info("Truck Symbol Size is : " + response.getTruckSymbolSize());
+		return response;
 	}
 
 

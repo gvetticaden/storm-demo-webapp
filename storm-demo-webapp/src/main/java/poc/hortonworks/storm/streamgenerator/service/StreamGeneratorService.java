@@ -10,6 +10,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
+import com.hortonworks.streaming.impl.domain.transport.TruckConfiguration;
 import com.hortonworks.streaming.impl.messages.StartSimulation;
 import com.hortonworks.streaming.impl.messages.StopSimulation;
 import com.hortonworks.streaming.listeners.SimulatorListener;
@@ -20,39 +21,79 @@ import com.typesafe.config.ConfigFactory;
 @Service
 public class StreamGeneratorService {
 	
-	public void generateTruckEventsStream(final StreamGeneratorParam param) {
+	
+	//Default Coordinates for Saint Louis
+	public static final double STL_LAT= 38.523884;
+	public static final double STL_LONG= -92.159845;
+	public static final int DEFAULT_ZOOME_LEVEL = 7;
+	public static final int DEFAULT_TRUCK_SYMBOL_SIZE = 10000;
+	
+	public double centerCoordinatesLat = STL_LAT;
+	public double centerCoordinatesLong = STL_LONG;
+	public int zoomLevel = DEFAULT_ZOOME_LEVEL;
+	public int truckSymbolSize = DEFAULT_TRUCK_SYMBOL_SIZE;
+	
+	public void generateTruckEventsStream(final StreamGeneratorParam params, boolean routeTruckRoute) {
 
 		try {
-			final Class eventEmitterClass = Class.forName(param.getEventEmitterClassName());
-			final Class eventCollectorClass = Class.forName(param.getEventCollectorClassName());
+			
+			final Class eventEmitterClass = Class.forName(params.getEventEmitterClassName());
+			final Class eventCollectorClass = Class.forName(params.getEventCollectorClassName());
+
+			int emitters = 0;		
+			
+
+			
 			Config config= ConfigFactory.load();
+			
+			if(routeTruckRoute) {
+				this.centerCoordinatesLat = params.getCenterCoordinatesLat();
+				this.centerCoordinatesLat = params.getCenterCoordinatesLong();
+				this.zoomLevel = params.getZoomLevel();	
+				this.truckSymbolSize = params.getTruckSymbolSize();
+				TruckConfiguration.initialize(params.getRouteDirectory());
+				TruckConfiguration.configureInitialDrivers();
+				TruckConfiguration.configureStartingPoints();
+				emitters=TruckConfiguration.truckRoutes.size();
+			} else {
+				resetMapCords();
+				TruckConfiguration.initialize();
+				TruckConfiguration.configureInitialDrivers();
+				TruckConfiguration.configureStartingPoints();
+				emitters = params.getNumberOfEventEmitters();
+									
+			}
+			
+			
 			
 			ActorSystem system = ActorSystem.create("EventSimulator", config, getClass().getClassLoader());
 			final ActorRef listener = system.actorOf(
 					Props.create(SimulatorListener.class), "listener");
 			final ActorRef eventCollector = system.actorOf(
 					Props.create(eventCollectorClass), "eventCollector");
+			final int numberOfEmitters = emitters;
 			System.out.println(eventCollector.path());
 			final long demoId = new Random().nextLong();
 			final ActorRef master = system.actorOf(new Props(
 					new UntypedActorFactory() {
 						public UntypedActor create() {
 							return new SimulationMaster(
-									param.getNumberOfEventEmitters(),
-									eventEmitterClass, listener, param.getNumberOfEvents(), demoId);
+									numberOfEmitters,
+									eventEmitterClass, listener, params.getNumberOfEvents(), demoId);
 						}
 					}), "master");
-//			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-//				public void run() {
-//					System.out.println("inside shutdown");
-//					master.tell(new StopSimulation(), master);
-//				}
-//			}));
 			master.tell(new StartSimulation(), master);
 		} catch (Exception e) {
 			throw new RuntimeException("Error running truck stream generator", e);
 		} 
 	
+	}
+	
+	public void resetMapCords() {
+		this.centerCoordinatesLat = STL_LAT;
+		this.centerCoordinatesLong = STL_LONG;
+		this.zoomLevel = DEFAULT_ZOOME_LEVEL;
+		this.truckSymbolSize = DEFAULT_TRUCK_SYMBOL_SIZE;
 	}
 
 }

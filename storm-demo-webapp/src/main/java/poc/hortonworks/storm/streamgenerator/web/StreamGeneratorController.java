@@ -23,6 +23,13 @@ public class StreamGeneratorController {
 	@MessageMapping("/simulateStreaming")
 	public void simulateTruckStream(StreamGeneratorParam param) {
 		LOG.info("Starting Stream simulation...");
-		streamGeneratorService.generateTruckEventsStream(param);
+		streamGeneratorService.generateTruckEventsStream(param, false);
 	}
+	
+	@MessageMapping("/mapTruckRoutes")
+	public void mapTruckRoutes(StreamGeneratorParam param) {
+		LOG.info("Starting Mapping Truck Routes...");
+		streamGeneratorService.generateTruckEventsStream(param, true);
+	}	
+	
 }

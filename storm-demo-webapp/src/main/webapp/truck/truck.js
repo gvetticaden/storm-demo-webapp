@@ -6,6 +6,8 @@ function ApplicationModel(stompClient, L) {
   self.driverMontior = ko.observable(new DriverMonitorModel());
   self.notifications = ko.observableArray();
   self.leaf = L;
+  self.truckSymbolSize;
+  
 
   self.connect = function() {
     stompClient.connect('', '', function(frame) {
@@ -15,8 +17,15 @@ function ApplicationModel(stompClient, L) {
 
       // Loads all the dangerous events for all drivers on page load
       stompClient.subscribe("/app/driverEvents", function(message) {
-
-        self.driverMontior().loadDangerousEvents(JSON.parse(message.body));
+    	var jsonResponse = JSON.parse(message.body);
+    	var lat = jsonResponse.startLat;
+    	var long = jsonResponse.startLong;
+    	var zoomLevel = jsonResponse.zoomLevel;
+    
+    	self.truckSymbolSize=jsonResponse.truckSymbolSize;
+    	
+        self.driverMontior().loadDangerousEvents(jsonResponse.violationEvents);
+        self.driverMontior().initializeMap(lat, long, zoomLevel);
       });
       
       //Update page with any new dangerous event that came in
@@ -26,7 +35,7 @@ function ApplicationModel(stompClient, L) {
        });
       
       stompClient.subscribe("/topic/driver_events", function(message) {
-          self.driverMontior().renderOnMap(JSON.parse(message.body));
+    	  self.driverMontior().renderOnMap(JSON.parse(message.body), self.truckSymbolSize);
       });      
       
       //Update page with any new alerts
@@ -55,12 +64,27 @@ function ApplicationModel(stompClient, L) {
 function DriverMonitorModel() {
   var self = this;
 
+  
   self.rows = ko.observableArray();
 
   var rowLookup = {};
   
   var driverOnMapLookup = {};
+  
 
+  
+  self.initializeMap = function(lat, long, zoomLevel) {
+	  console.log("inside initialize mapp...");
+	  map = L.map('map').setView([lat, long], zoomLevel);
+
+	    // add an OpenStreetMap tile layer
+	  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+	  }).addTo(map);	  
+	  
+  }
+  
+  
   self.loadDangerousEvents = function(positions) {
 	  for ( var i = 0; i < positions.length; i++) {
     	
@@ -91,7 +115,7 @@ function DriverMonitorModel() {
 	  }; 
 	  
 
-  self.renderOnMap = function(driverEvent) {
+  self.renderOnMap = function(driverEvent, truckSymbolSize) {
 	  if (driverOnMapLookup.hasOwnProperty(driverEvent.truckDriverEventKey)) {
 		  var driverOnMap = driverOnMapLookup[driverEvent.truckDriverEventKey].driverOnMap;
 		  var previousDriverEvent = driverOnMapLookup[driverEvent.truckDriverEventKey].driverEvent;
@@ -117,17 +141,16 @@ function DriverMonitorModel() {
 		  }
 			 
 	  } else {
-		  self.renderNewDriverOnMap(driverEvent);
+		  self.renderNewDriverOnMap(driverEvent, truckSymbolSize);
 	  }
   }
   
-  self.renderNewDriverOnMap = function (driverEvent) {
-	  
+  self.renderNewDriverOnMap = function (driverEvent, truckSymbolSize) {
 	    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-	  	var driverOnMap = L.circle([driverEvent.latitude, driverEvent.longitude], 10000, {
+	  	var driverOnMap = L.circle([driverEvent.latitude, driverEvent.longitude], truckSymbolSize, {
 	        color: randomColor,
 	        fillColor: randomColor,
-	        fillOpacity: 0.5
+	        fillOpacity: 0.8
 	    }).addTo(map);   
 	  	
 		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent);

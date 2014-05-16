@@ -21,8 +21,9 @@
         </div>
         <h3 class="muted">Stream Generator</h3>
       </div>
+      
       <div id="main-content">
-
+		  <b> Simulate Stream</b>
           <form class="form-horizontal" data-bind="submit: streamGenerator().simulateStream">
 
             <div class="control-group">
@@ -55,10 +56,82 @@
             
             <button class="btn btn-primary" type="submit">Simulate Stream</button>
           </form>
+          
+      
 
 
         
       </div>
+      
+
+      
+      
+      <div id="main-content">
+		  <b>Map Truck Routes</b>
+          <form class="form-horizontal" data-bind="submit: streamGenerator().mapRoutes">
+
+            <div class="control-group">
+              <label class="control-label" for="eventEmitterClass2">Event Emitter Class</label>
+              <div class="controls">
+                <input id="eventEmitterClass2" type="text" data-bind="value: streamGenerator().eventEmitterClass2" >
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" for="eventCollectorClass2">Event Collector Class</label>
+              <div class="controls">
+                <input id="eventCollectorClass2" type="text" data-bind="value: streamGenerator().eventCollectorClass2">
+              </div>
+            </div>     
+            
+            <div class="control-group">
+              <label class="control-label" for="events2">Number of Events</label>
+              <div class="controls">
+                <input id="events2" type="text" data-bind="value: streamGenerator().events2">
+              </div>
+            </div>              
+            
+            <div class="control-group">
+              <label class="control-label" for="routeDirectory">Directory Location of Truck Routes</label>
+              <div class="controls">
+                <input id="routeDirectory" type="text" data-bind="value: streamGenerator().routeDirectory">
+              </div>
+            </div>        
+            
+            <div class="control-group">
+              <label class="control-label" for="centerCoordinatesLat">Center LAT Coordinate</label>
+              <div class="controls">
+                <input id="centerCoordinatesLat" type="text" data-bind="value: streamGenerator().centerCoordinatesLat">
+              </div>
+            </div>   
+            
+            <div class="control-group">
+              <label class="control-label" for="centerCoordinatesLong">Center LONG Coordinate</label>
+              <div class="controls">
+                <input id="centerCoordinatesLong" type="text" data-bind="value: streamGenerator().centerCoordinatesLong">
+              </div>
+            </div>    
+            
+            <div class="control-group">
+              <label class="control-label" for="zoomLevel">Map Zoom Level</label>
+              <div class="controls">
+                <input id="zoomLevel" type="text" data-bind="value: streamGenerator().zoomLevel">
+              </div>
+            </div>      
+            
+            <div class="control-group">
+              <label class="control-label" for="truckSymbolSize">Truck Symbol Size</label>
+              <div class="controls">
+                <input id="truckSymbolSize" type="text" data-bind="value: streamGenerator().truckSymbolSize">
+              </div>
+            </div>                                                        
+            
+            <button class="btn btn-primary" type="submit">Map Truck Routes</button>
+          </form>
+
+
+        
+      </div>      
     </div>
 
     <!-- 3rd party -->
