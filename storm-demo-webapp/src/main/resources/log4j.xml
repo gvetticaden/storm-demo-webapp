@@ -32,6 +32,12 @@
 		<level value="info" />
 	</logger>		
 
+<!-- 
+	<logger name="com.hortonworks.streaming.impl.collectors">
+		<level value="ERROR"></level>
+	</logger>
+ -->
+ 	
 	<root>
 		<priority value="INFO" />
 		<appender-ref ref="console" />

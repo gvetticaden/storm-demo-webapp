@@ -95,16 +95,16 @@ function DriverMonitorModel() {
   self.loadDangerousEvent = function (position) {
   	var row = new DriverRow(position);
 	self.rows.push(row);
-	rowLookup[row.truckDriverEventKey] = row;	  
+	rowLookup[row.driverId] = row;	  
   }
   
   self.processDangerousEvent = function(driverEvent) {
-	 	if (rowLookup.hasOwnProperty(driverEvent.truckDriverEventKey)) {
-	 		rowLookup[driverEvent.truckDriverEventKey].highlight();
-	 		rowLookup[driverEvent.truckDriverEventKey].updateEvent(driverEvent);
+	 	if (rowLookup.hasOwnProperty(driverEvent.driverId)) {
+	 		rowLookup[driverEvent.driverId].highlight();
+	 		rowLookup[driverEvent.driverId].updateEvent(driverEvent);
 	 		setTimeout(function() {
 	 			
-	 			rowLookup[driverEvent.truckDriverEventKey].unHighlight();
+	 			rowLookup[driverEvent.driverId].unHighlight();
 	 			
 	 		}, 2000);
 	 		
@@ -116,28 +116,40 @@ function DriverMonitorModel() {
 	  
 
   self.renderOnMap = function(driverEvent, truckSymbolSize) {
-	  if (driverOnMapLookup.hasOwnProperty(driverEvent.truckDriverEventKey)) {
-		  var driverOnMap = driverOnMapLookup[driverEvent.truckDriverEventKey].driverOnMap;
-		  var previousDriverEvent = driverOnMapLookup[driverEvent.truckDriverEventKey].driverEvent;
+	  if (driverOnMapLookup.hasOwnProperty(driverEvent.driverId)) {
+		  var driverOnMap = driverOnMapLookup[driverEvent.driverId].driverOnMap;
+		  var previousDriverEvent = driverOnMapLookup[driverEvent.driverId].driverEvent;
 		  
 		  driverOnMap.setLatLng([driverEvent.latitude, driverEvent.longitude]);
 		  
 		  var driverMsg;
 		  if(driverEvent.numberOfInfractions == previousDriverEvent.numberOfInfractions) {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, previousDriverEvent.infractionEvent);
+			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, previousDriverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
 		  
 		  } else {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent);
+			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
 		  }
 		  
-		  driverOnMapLookup[driverEvent.truckDriverEventKey].driverEvent = driverEvent;
+		  driverOnMapLookup[driverEvent.driverId].driverEvent = driverEvent;
 		  
-		  driverOnMap.bindPopup(driverMsg);
+		  //driverOnMap.bindPopup(driverMsg);
 		  if(driverEvent.infractionEvent != 'Normal') {
-			  driverOnMap.setRadius(driverOnMap.getRadius() * 1.1);
+			  driverOnMap.closePopup();
+			  driverOnMap.bindPopup(driverMsg);
+			  var newRadius = driverOnMap.getRadius() * 1.1;
+			  console.log("New Raidus: " + newRadius);
+			  if(newRadius > 50000) {
+				  newRadius = driverOnMap.getRadius();			  
+			  } 
+			  driverOnMap.setRadius(newRadius);
 			  driverOnMap.openPopup();
 		  } else {
-			  driverOnMap.closePopup();
+			  if(driverOnMap._popup._isOpen) {
+				  //driverOnMap.closePopup();
+				  driverOnMap.bindPopup(driverMsg);
+				  driverOnMap.openPopup();
+			  }
+			  
 		  }
 			 
 	  } else {
@@ -153,18 +165,20 @@ function DriverMonitorModel() {
 	        fillOpacity: 0.8
 	    }).addTo(map);   
 	  	
-		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent);
+		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
 	  	driverOnMap.bindPopup(driverMsg);
 	  	var driverDetails = {driverEvent:driverEvent, driverOnMap:driverOnMap};
-	  	driverOnMapLookup[driverEvent.truckDriverEventKey] = driverDetails;	  
+	  	driverOnMapLookup[driverEvent.driverId] = driverDetails;	  
 	    
   
   }; 
   
-  self.constructMessage = function(driverId, numberOfInfractions, lastViolation) {
+  self.constructMessage = function(driverId, numberOfInfractions, lastViolation, driverName, routeId, routeName) {
 	  var message= " <div> " +
-	    "<b>Driver ID: </b> " + driverId +
-	    "</br>" + 
+	  	"<b>Driver Name: </b> " + driverName +
+	  	"</br>" + 
+	  	"<b>Route Name: </b> " + routeName +
+	  	"</br>" +  
 	    "<b>Violation Count: </b>" + numberOfInfractions +
 	    "</br>" +
 	    "<b>Last Violation: </b>" + lastViolation +
@@ -181,13 +195,18 @@ function DriverRow(data) {
 
   self.truckDriverEventKey = data.truckDriverEventKey;
   self.driverId = data.driverId;
-  self.truckId = data.truckId;
+  self.driverName = data.driverName;
+  
+ 
   
   self.timeStampString = ko.observable(data.timeStampString);
   self.longitude = ko.observable(data.longitude);
   self.latitude = ko.observable(data.latitude);
   self.infractionEvent = ko.observable(data.infractionEvent);
   self.numberOfInfractions = ko.observable(data.numberOfInfractions);
+  self.truckId = ko.observable(data.truckId);
+  self.routeId = ko.observable(data.routeId);
+  self.routeName = ko.observable(data.routeName);
   self.rowClass=ko.observable("");
   
   self.updateEvent = function(driverEvent) {
@@ -197,6 +216,8 @@ function DriverRow(data) {
 	    self.latitude(driverEvent.latitude);
 	    self.infractionEvent(driverEvent.infractionEvent);
 	    self.numberOfInfractions(driverEvent.numberOfInfractions);
+	    self.routeId(driverEvent.routeId);
+	    self.truckId(driverEvent.truckId);
 
   };  
   

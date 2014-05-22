@@ -59,16 +59,16 @@ public class DemoResetService {
 		if(param.isTruncateHbaseTables()) {
 			truncateHBaseTables();
 		}
-		resetStreamingSimulator();
+		//resetStreamingSimulator();
 		streamService.resetMapCords();
 	}
 	
-	public void resetStreamingSimulator() {
-		TruckConfiguration.initialize();
-		TruckConfiguration.configureInitialDrivers();
-		TruckConfiguration.configureStartingPoints();	
-	
-	}
+//	public void resetStreamingSimulator() {
+//		TruckConfiguration.initialize();
+//		TruckConfiguration.configureStartingPoints();
+//		TruckConfiguration.configureInitialDrivers();
+//	
+//	}
 	
 	public void truncateHBaseTables() {
 		try {

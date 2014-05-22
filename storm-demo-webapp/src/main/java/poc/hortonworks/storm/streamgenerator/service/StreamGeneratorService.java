@@ -25,7 +25,7 @@ public class StreamGeneratorService {
 	//Default Coordinates for Saint Louis
 	public static final double STL_LAT= 38.523884;
 	public static final double STL_LONG= -92.159845;
-	public static final int DEFAULT_ZOOME_LEVEL = 7;
+	public static final int DEFAULT_ZOOME_LEVEL = 6;
 	public static final int DEFAULT_TRUCK_SYMBOL_SIZE = 10000;
 	
 	public double centerCoordinatesLat = STL_LAT;
@@ -33,38 +33,22 @@ public class StreamGeneratorService {
 	public int zoomLevel = DEFAULT_ZOOME_LEVEL;
 	public int truckSymbolSize = DEFAULT_TRUCK_SYMBOL_SIZE;
 	
-	public void generateTruckEventsStream(final StreamGeneratorParam params, boolean routeTruckRoute) {
+	public void generateTruckEventsStream(final StreamGeneratorParam params) {
 
 		try {
 			
 			final Class eventEmitterClass = Class.forName(params.getEventEmitterClassName());
 			final Class eventCollectorClass = Class.forName(params.getEventCollectorClassName());
-
-			int emitters = 0;		
-			
-
 			
 			Config config= ConfigFactory.load();
-			
-			if(routeTruckRoute) {
-				this.centerCoordinatesLat = params.getCenterCoordinatesLat();
-				this.centerCoordinatesLat = params.getCenterCoordinatesLong();
-				this.zoomLevel = params.getZoomLevel();	
-				this.truckSymbolSize = params.getTruckSymbolSize();
-				TruckConfiguration.initialize(params.getRouteDirectory());
-				TruckConfiguration.configureInitialDrivers();
-				TruckConfiguration.configureStartingPoints();
-				emitters=TruckConfiguration.truckRoutes.size();
-			} else {
-				resetMapCords();
-				TruckConfiguration.initialize();
-				TruckConfiguration.configureInitialDrivers();
-				TruckConfiguration.configureStartingPoints();
-				emitters = params.getNumberOfEventEmitters();
-									
-			}
-			
-			
+		
+			this.centerCoordinatesLat = params.getCenterCoordinatesLat();
+			this.centerCoordinatesLat = params.getCenterCoordinatesLong();
+			this.zoomLevel = params.getZoomLevel();	
+			this.truckSymbolSize = params.getTruckSymbolSize();
+			TruckConfiguration.initialize(params.getRouteDirectory());
+			int emitters=TruckConfiguration.freeRoutePool.size();
+		
 			
 			ActorSystem system = ActorSystem.create("EventSimulator", config, getClass().getClassLoader());
 			final ActorRef listener = system.actorOf(

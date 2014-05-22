@@ -68,8 +68,13 @@ public class DriverEventsService {
 					String lastInfraction = Bytes.toString(result.getValue(Bytes.toBytes(DRIVER_EVENTS_COLUMN_FAMILY_NAME), Bytes.toBytes("eventType")));
 					long numberOfInfractions = getInfractionCountForDriver(driverId);
 					
+					int routeId = Bytes.toInt(result.getValue(Bytes.toBytes(DRIVER_EVENTS_COLUMN_FAMILY_NAME), Bytes.toBytes("routeId")));
+					String driverName = Bytes.toString(result.getValue(Bytes.toBytes(DRIVER_EVENTS_COLUMN_FAMILY_NAME), Bytes.toBytes("driverName")));
+		
+					String routeName = Bytes.toString(result.getValue(Bytes.toBytes(DRIVER_EVENTS_COLUMN_FAMILY_NAME), Bytes.toBytes("routeName")));
+					
 					TruckDriverViolationEvent event = new TruckDriverViolationEvent(truckDriverEventKey, driverId, truckId, eventTimeLong, 
-										timeStampString, longitude, latitude, lastInfraction, numberOfInfractions);
+										timeStampString, longitude, latitude, lastInfraction, numberOfInfractions, driverName, routeId, routeName );
 					
 					eventsMap.put(driverId, event);
 				}
