@@ -48,7 +48,9 @@ public class StreamGeneratorService {
 			this.truckSymbolSize = params.getTruckSymbolSize();
 			TruckConfiguration.initialize(params.getRouteDirectory());
 			int emitters=TruckConfiguration.freeRoutePool.size();
-		
+			
+			Thread.sleep(5000);
+			System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Number of Emitters is ....." + emitters);
 			
 			ActorSystem system = ActorSystem.create("EventSimulator", config, getClass().getClassLoader());
 			final ActorRef listener = system.actorOf(

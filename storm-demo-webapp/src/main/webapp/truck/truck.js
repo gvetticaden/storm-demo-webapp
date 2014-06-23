@@ -36,6 +36,7 @@ function ApplicationModel(stompClient, L) {
       
       stompClient.subscribe("/topic/driver_events", function(message) {
     	  self.driverMontior().renderOnMap(JSON.parse(message.body), self.truckSymbolSize);
+    	  //setTimeout(self.driverMontior().renderOnMap(JSON.parse(message.body), self.truckSymbolSize), 2000);
       });      
       
       //Update page with any new alerts
@@ -70,6 +71,7 @@ function DriverMonitorModel() {
   var rowLookup = {};
   
   var driverOnMapLookup = {};
+  var stopIncreasingRadius = false;
   
 
   
@@ -114,6 +116,7 @@ function DriverMonitorModel() {
 	    }
 	  }; 
 	  
+	  
 
   self.renderOnMap = function(driverEvent, truckSymbolSize) {
 	  if (driverOnMapLookup.hasOwnProperty(driverEvent.driverId)) {
@@ -123,11 +126,12 @@ function DriverMonitorModel() {
 		  driverOnMap.setLatLng([driverEvent.latitude, driverEvent.longitude]);
 		  
 		  var driverMsg;
+		  var alert = driverOnMap.getRadius() > 40000;
 		  if(driverEvent.numberOfInfractions == previousDriverEvent.numberOfInfractions) {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, previousDriverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
+			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, previousDriverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName, alert);
 		  
 		  } else {
-			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
+			  driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName, alert);
 		  }
 		  
 		  driverOnMapLookup[driverEvent.driverId].driverEvent = driverEvent;
@@ -135,27 +139,38 @@ function DriverMonitorModel() {
 		  //driverOnMap.bindPopup(driverMsg);
 		  if(driverEvent.infractionEvent != 'Normal') {
 			  driverOnMap.closePopup();
-			  driverOnMap.bindPopup(driverMsg);
-			  var newRadius = driverOnMap.getRadius() * 1.1;
-			  console.log("New Raidus: " + newRadius);
-			  if(newRadius > 50000) {
-				  newRadius = driverOnMap.getRadius();			  
-			  } 
-			  driverOnMap.setRadius(newRadius);
+			  
+			  
+			  if(driverOnMap.getRadius() > 40000) {	
+				  //console.log("Raidus is either greater than 40000 or all radisus increases have stopped " + newRadius);
+				  stopIncreasingRadius = true; 				    			  
+			  }
+			  if(!stopIncreasingRadius) {
+				  
+				  var newRadius = driverOnMap.getRadius() * 1.1;
+				  driverOnMap.setRadius(newRadius);
+			  }
+			  
+			  //console.log("New Radius is: " + newRadius);
+			  
 			  driverOnMap.openPopup();
+			  driverOnMap.bindPopup(driverMsg);
 		  } else {
 			  if(driverOnMap._popup._isOpen) {
-				  //driverOnMap.closePopup();
+				  driverOnMap.closePopup();
 				  driverOnMap.bindPopup(driverMsg);
 				  driverOnMap.openPopup();
 			  }
 			  
 		  }
+		  
 			 
 	  } else {
 		  self.renderNewDriverOnMap(driverEvent, truckSymbolSize);
 	  }
   }
+  
+
   
   self.renderNewDriverOnMap = function (driverEvent, truckSymbolSize) {
 	    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
@@ -165,7 +180,7 @@ function DriverMonitorModel() {
 	        fillOpacity: 0.8
 	    }).addTo(map);   
 	  	
-		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName);
+		var driverMsg = self.constructMessage(driverEvent.driverId, driverEvent.numberOfInfractions, driverEvent.infractionEvent, driverEvent.driverName, driverEvent.routeId, driverEvent.routeName, false);
 	  	driverOnMap.bindPopup(driverMsg);
 	  	var driverDetails = {driverEvent:driverEvent, driverOnMap:driverOnMap};
 	  	driverOnMapLookup[driverEvent.driverId] = driverDetails;	  
@@ -173,17 +188,25 @@ function DriverMonitorModel() {
   
   }; 
   
-  self.constructMessage = function(driverId, numberOfInfractions, lastViolation, driverName, routeId, routeName) {
-	  var message= " <div> " +
-	  	"<b>Driver Name: </b> " + driverName +
+  self.constructMessage = function(driverId, numberOfInfractions, lastViolation, driverName, routeId, routeName, alertDriver) {
+	  
+	  var coreMessage = 	  	
+	    "<b>Driver Name: </b> " + driverName +
 	  	"</br>" + 
 	  	"<b>Route Name: </b> " + routeName +
 	  	"</br>" +  
 	    "<b>Violation Count: </b>" + numberOfInfractions +
 	    "</br>" +
 	    "<b>Last Violation: </b>" + lastViolation +
-	    "</br>" +
-	    "</div>";
+	    "</br>";
+	  
+	  if(alertDriver) {
+		  //console.log("alertDriver is true");
+		  var alertMsg = "<b><h5>CONTACT DRIVER IMMEDIATELY</h5></b>";
+		  coreMessage = coreMessage + alertMsg;
+	  }
+	  
+	  var message= " <div> "+ coreMessage  + "</div>";
 	  return message;
 	};
 
@@ -218,6 +241,7 @@ function DriverRow(data) {
 	    self.numberOfInfractions(driverEvent.numberOfInfractions);
 	    self.routeId(driverEvent.routeId);
 	    self.truckId(driverEvent.truckId);
+	    self.routeName(driverEvent.routeName);
 
   };  
   

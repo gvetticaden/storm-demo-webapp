@@ -22,7 +22,7 @@ import poc.hortonworks.domain.transport.TruckDriverViolationEvent;
 @Service
 public class DriverEventsService {
 	
-	private static final String HBASE_ZOOKEEPER_HOST = "hadoopsummit-hdp21-master2.secloud.hortonworks.com";
+	private static final String HBASE_ZOOKEEPER_HOST = "george-cluster01.cloud.hortonworks.com";
 	private static final String DRIVER_EVENTS_TABLE = "driver_dangerous_events";
 	private static String DRIVER_EVENTS_COLUMN_FAMILY_NAME = "events";
 	
