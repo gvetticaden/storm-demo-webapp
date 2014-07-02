@@ -65,7 +65,7 @@ public class StreamGeneratorService {
 						public UntypedActor create() {
 							return new SimulationMaster(
 									numberOfEmitters,
-									eventEmitterClass, listener, params.getNumberOfEvents(), demoId);
+									eventEmitterClass, listener, params.getNumberOfEvents(), demoId, params.getDelayBetweenEvents());
 						}
 					}), "master");
 			master.tell(new StartSimulation(), master);

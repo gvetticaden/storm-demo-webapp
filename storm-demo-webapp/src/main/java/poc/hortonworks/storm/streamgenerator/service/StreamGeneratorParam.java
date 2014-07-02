@@ -18,6 +18,7 @@ public class StreamGeneratorParam implements Serializable {
 	private double centerCoordinatesLong;
 	private int zoomLevel;
 	private int truckSymbolSize;
+	private int delayBetweenEvents;
 	
 
 	public int getZoomLevel() {
@@ -73,6 +74,12 @@ public class StreamGeneratorParam implements Serializable {
 	}
 	public void setTruckSymbolSize(int truckSymbolSize) {
 		this.truckSymbolSize = truckSymbolSize;
+	}
+	public int getDelayBetweenEvents() {
+		return delayBetweenEvents;
+	}
+	public void setDelayBetweenEvents(int delayBetweenEvents) {
+		this.delayBetweenEvents = delayBetweenEvents;
 	}
 
 	

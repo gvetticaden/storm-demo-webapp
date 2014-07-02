@@ -81,11 +81,16 @@
 
       (function() {
         var socket = new SockJS('/storm-demo-web-app/monitor');
+        console.log("about to create stomp client");
         var stompClient = Stomp.over(socket);
+        console.log("created stomp client");
         var appModel = new ApplicationModel(stompClient, L);
+        console.log("model created");
         ko.applyBindings(appModel);
+        console.log("applyBindings done");
 
         appModel.connect();
+        console.log("connected........");
         appModel.pushNotification("No Alerts Yet....");
       })();    
 

@@ -12,7 +12,7 @@ function ApplicationModel(stompClient, L) {
   self.connect = function() {
     stompClient.connect('', '', function(frame) {
 
-      console.log('Connected ' + frame);
+      console.log('Connected XXXX' + frame);
       self.username(frame.headers['user-name']);
 
       // Loads all the dangerous events for all drivers on page load
@@ -35,6 +35,7 @@ function ApplicationModel(stompClient, L) {
        });
       
       stompClient.subscribe("/topic/driver_events", function(message) {
+    	  //console.log(message);
     	  self.driverMontior().renderOnMap(JSON.parse(message.body), self.truckSymbolSize);
     	  //setTimeout(self.driverMontior().renderOnMap(JSON.parse(message.body), self.truckSymbolSize), 2000);
       });      

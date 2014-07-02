@@ -25,7 +25,7 @@ function StreamGeneratorModel(stompClient) {
 	  self.centerCoordinatesLong = ko.observable("-92.159845");
 	  self.zoomLevel=ko.observable("7");
 	  self.truckSymbolSize = ko.observable("10000");
-
+	  self.delayBetweenEvents = ko.observable("1000");
 
 	  
 	  
@@ -39,7 +39,8 @@ function StreamGeneratorModel(stompClient) {
 		    	"centerCoordinatesLat": self.centerCoordinatesLat(),
 		    	"centerCoordinatesLong": self.centerCoordinatesLong(),
 		    	"zoomLevel": self.zoomLevel(),
-		    	"truckSymbolSize": self.truckSymbolSize()
+		    	"truckSymbolSize": self.truckSymbolSize(),
+		    	"delayBetweenEvents": self.delayBetweenEvents()
 		      };
 		    console.log(streamGeneratorData);
 		    stompClient.send("/app/mapTruckRoutes", {}, JSON.stringify(streamGeneratorData));
