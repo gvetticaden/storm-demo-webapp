@@ -5,6 +5,7 @@ body {
 
 #main-content {
   max-width: 940px;
+  height: 500px;
   padding: 10px 20px 0px;
   margin: 0 auto 20px;
   background-color: #fff;
@@ -16,6 +17,20 @@ body {
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
   box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
 }
+
+.section1 {
+width: 250px;
+height: 200px;
+margin: 10px 10px 10px 10px;
+padding: 4px;
+border: 1px solid #000;
+background: white;
+float: left;
+overflow: auto;
+font-family: "Myriad Pro","Trebuchet MS","Helvetica Neue",Helvetica,Arial,Sans-Serif;
+}
+
+
 
 .table th.number, .table td.number {
   text-align: right;
