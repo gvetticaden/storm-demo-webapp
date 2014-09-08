@@ -26,7 +26,7 @@ import com.hortonworks.streaming.impl.domain.transport.TruckConfiguration;
 @Service
 public class DemoResetService {
 	
-	private static final String HBASE_ZOOKEEPER_HOST = "george-cluster01.cloud.hortonworks.com";
+	private static final String HBASE_ZOOKEEPER_HOST = "vett-cluster01.cloud.hortonworks.com";
 
 	private static Logger LOG = Logger.getLogger(DemoResetService.class);
 	
