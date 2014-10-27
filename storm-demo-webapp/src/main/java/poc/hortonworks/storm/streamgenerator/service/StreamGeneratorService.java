@@ -2,7 +2,10 @@ package poc.hortonworks.storm.streamgenerator.service;
 
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import poc.hortonworks.storm.config.service.AppConfigService;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -33,6 +36,13 @@ public class StreamGeneratorService {
 	public int zoomLevel = DEFAULT_ZOOME_LEVEL;
 	public int truckSymbolSize = DEFAULT_TRUCK_SYMBOL_SIZE;
 	
+	private AppConfigService appConfigService;
+	
+	@Autowired
+	public StreamGeneratorService(AppConfigService appConfigService) {
+		this.appConfigService = appConfigService;
+	}
+	
 	public void generateTruckEventsStream(final StreamGeneratorParam params) {
 
 		try {
@@ -50,15 +60,16 @@ public class StreamGeneratorService {
 			int emitters=TruckConfiguration.freeRoutePool.size();
 			
 			Thread.sleep(5000);
-			System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& Number of Emitters is ....." + emitters);
 			
 			ActorSystem system = ActorSystem.create("EventSimulator", config, getClass().getClassLoader());
 			final ActorRef listener = system.actorOf(
 					Props.create(SimulatorListener.class), "listener");
+			
+			String kafkaBrokerList = appConfigService.getKafkaBrokerList();
 			final ActorRef eventCollector = system.actorOf(
-					Props.create(eventCollectorClass), "eventCollector");
+					Props.create(eventCollectorClass, kafkaBrokerList), "eventCollector");
 			final int numberOfEmitters = emitters;
-			System.out.println(eventCollector.path());
+			
 			final long demoId = new Random().nextLong();
 			final ActorRef master = system.actorOf(new Props(
 					new UntypedActorFactory() {

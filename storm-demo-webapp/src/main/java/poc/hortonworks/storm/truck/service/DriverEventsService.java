@@ -23,14 +23,15 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import poc.hortonworks.domain.transport.TruckDriverViolationEvent;
+import poc.hortonworks.storm.config.service.AppConfigService;
 
 @Service
 public class DriverEventsService {
 	
-	private static final String HBASE_ZOOKEEPER_HOST = "vett-cluster01.cloud.hortonworks.com";
 	private static final String DRIVER_EVENTS_TABLE = "driver_dangerous_events";
 	private static String DRIVER_EVENTS_COLUMN_FAMILY_NAME = "events";
 	
@@ -39,20 +40,23 @@ public class DriverEventsService {
 	
 	private static final Logger LOG = Logger.getLogger(DriverEventsService.class);
 	
-	private static final String PHOENIX_CONNECTION_URL = "jdbc:phoenix:vett-cluster01.cloud.hortonworks.com:2181:/hbase-unsecure";
 	
 	private HTableInterface driverEventsTable;
 	private HTableInterface driverEventsCountTable;
 	private Connection phoenixConnection;
 	
-	public DriverEventsService() {
+	private AppConfigService appConfigService;
+	
+	@Autowired
+	public DriverEventsService(AppConfigService appConfigService) {
 		try {
+			this.appConfigService = appConfigService;
 			Configuration config = constructConfiguration();
 			HConnection connection = HConnectionManager.createConnection(config);
 			driverEventsTable = connection.getTable(DRIVER_EVENTS_TABLE);
 			driverEventsCountTable = connection.getTable(DRIVER_EVENTS_COUNT_TABLE);
 			
-			this.phoenixConnection = DriverManager.getConnection(PHOENIX_CONNECTION_URL);
+			this.phoenixConnection = DriverManager.getConnection(appConfigService.getPhoenixConnectionURL());
 			this.phoenixConnection.setAutoCommit(true);			
 		} catch (Exception e) {
 			LOG.error("Error connectiong to HBase", e);
@@ -165,11 +169,10 @@ public class DriverEventsService {
 	private Configuration constructConfiguration() throws Exception {
 		Configuration config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum",
-				HBASE_ZOOKEEPER_HOST);
-		config.set("hbase.zookeeper.property.clientPort", "2181");
-		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		//HBaseAdmin.checkHBaseAvailable(config);
+				appConfigService.getHBaseZookeeperHost());
+		config.set("hbase.zookeeper.property.clientPort", appConfigService.getHBaseZookeeperClientPort());
+		config.set("zookeeper.znode.parent", appConfigService.getHBaseZookeeperZNodeParent());
 		return config;
-	}	
+	}		
 
 }

@@ -37,8 +37,6 @@ public class TruckDriverEventsController {
 	private StreamGeneratorService streamingService;
 	
 	
-
-
 	@Autowired
 	public TruckDriverEventsController(DriverEventsService driverEventsService, StreamGeneratorService streamingService) {
 		this.driverEventsService = driverEventsService;

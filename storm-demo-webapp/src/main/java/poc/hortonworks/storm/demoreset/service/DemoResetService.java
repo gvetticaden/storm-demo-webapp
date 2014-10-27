@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -16,28 +15,22 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HConnection;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import poc.hortonworks.storm.config.service.AppConfigService;
 import poc.hortonworks.storm.demoreset.web.DemoResetParam;
 import poc.hortonworks.storm.streamgenerator.service.StreamGeneratorService;
-
-import com.hortonworks.streaming.impl.domain.transport.Truck;
-import com.hortonworks.streaming.impl.domain.transport.TruckConfiguration;
 
 @Service
 public class DemoResetService {
 	
-	private static final String HBASE_ZOOKEEPER_HOST = "vett-cluster01.cloud.hortonworks.com";
 
 	private static Logger LOG = Logger.getLogger(DemoResetService.class);
 	
 	private static final  String EVENTS_TABLE_NAME = "driver_dangerous_events";
 	private static final  String EVENTS_COUNT_TABLE_NAME = "driver_dangerous_events_count";
-	private static final String PHOENIX_CONNECTION_URL = "jdbc:phoenix:vett-cluster01.cloud.hortonworks.com:2181:/hbase-unsecure";
 	
 	private HBaseAdmin admin;
 	private HTable driverEventsTable;
@@ -46,18 +39,21 @@ public class DemoResetService {
 	private Connection phoenixConnection;
 	
 	private StreamGeneratorService streamService;
+	private AppConfigService appConfigService;
 	
 	@Autowired
-	public DemoResetService(StreamGeneratorService streamService) {
+	public DemoResetService(StreamGeneratorService streamService, AppConfigService appConfigService) {
 		try {
 			this.streamService = streamService;
+			this.appConfigService = appConfigService;
+			
 			Configuration config = constructConfiguration();
 			admin = createHBaseAdmin(config);
 			HConnection connection = HConnectionManager.createConnection(config);
 			driverEventsTable = (HTable) connection.getTable(EVENTS_TABLE_NAME);
 			driverEventsCountTable = (HTable) connection.getTable(EVENTS_COUNT_TABLE_NAME);
 			
-			this.phoenixConnection = DriverManager.getConnection(PHOENIX_CONNECTION_URL);
+			this.phoenixConnection = DriverManager.getConnection(appConfigService.getPhoenixConnectionURL());
 			this.phoenixConnection.setAutoCommit(true);				
 
 		} catch (Exception e) {
@@ -74,13 +70,7 @@ public class DemoResetService {
 		//resetStreamingSimulator();
 		streamService.resetMapCords();
 	}
-	
-//	public void resetStreamingSimulator() {
-//		TruckConfiguration.initialize();
-//		TruckConfiguration.configureStartingPoints();
-//		TruckConfiguration.configureInitialDrivers();
-//	
-//	}
+
 	
 	private void truncatePhoenixTables() {
 		
@@ -132,10 +122,9 @@ public class DemoResetService {
 	private Configuration constructConfiguration() throws Exception {
 		Configuration config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum",
-				HBASE_ZOOKEEPER_HOST);
-		config.set("hbase.zookeeper.property.clientPort", "2181");
-		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		//HBaseAdmin.checkHBaseAvailable(config);
+				appConfigService.getHBaseZookeeperHost());
+		config.set("hbase.zookeeper.property.clientPort", appConfigService.getHBaseZookeeperClientPort());
+		config.set("zookeeper.znode.parent", appConfigService.getHBaseZookeeperZNodeParent());
 		return config;
 	}	
 }
