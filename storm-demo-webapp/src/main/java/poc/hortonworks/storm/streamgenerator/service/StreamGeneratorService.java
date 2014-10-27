@@ -27,7 +27,7 @@ public class StreamGeneratorService {
 	public static final double STL_LONG= -92.159845;
 	public static final int DEFAULT_ZOOME_LEVEL = 6;
 	public static final int DEFAULT_TRUCK_SYMBOL_SIZE = 10000;
-	
+
 	public double centerCoordinatesLat = STL_LAT;
 	public double centerCoordinatesLong = STL_LONG;
 	public int zoomLevel = DEFAULT_ZOOME_LEVEL;

@@ -1,6 +1,11 @@
 package poc.hortonworks.storm.demoreset.service;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -32,11 +37,14 @@ public class DemoResetService {
 	
 	private static final  String EVENTS_TABLE_NAME = "driver_dangerous_events";
 	private static final  String EVENTS_COUNT_TABLE_NAME = "driver_dangerous_events_count";
+	private static final String PHOENIX_CONNECTION_URL = "jdbc:phoenix:vett-cluster01.cloud.hortonworks.com:2181:/hbase-unsecure";
 	
 	private HBaseAdmin admin;
 	private HTable driverEventsTable;
 	private HTable driverEventsCountTable;
 
+	private Connection phoenixConnection;
+	
 	private StreamGeneratorService streamService;
 	
 	@Autowired
@@ -48,6 +56,9 @@ public class DemoResetService {
 			HConnection connection = HConnectionManager.createConnection(config);
 			driverEventsTable = (HTable) connection.getTable(EVENTS_TABLE_NAME);
 			driverEventsCountTable = (HTable) connection.getTable(EVENTS_COUNT_TABLE_NAME);
+			
+			this.phoenixConnection = DriverManager.getConnection(PHOENIX_CONNECTION_URL);
+			this.phoenixConnection.setAutoCommit(true);				
 
 		} catch (Exception e) {
 			LOG.error("Error connectiong to HBase", e);
@@ -58,6 +69,7 @@ public class DemoResetService {
 	public void resetDemo(DemoResetParam param) {
 		if(param.isTruncateHbaseTables()) {
 			truncateHBaseTables();
+			truncatePhoenixTables();
 		}
 		//resetStreamingSimulator();
 		streamService.resetMapCords();
@@ -70,6 +82,26 @@ public class DemoResetService {
 //	
 //	}
 	
+	private void truncatePhoenixTables() {
+		
+		PreparedStatement statement = null;
+		try {
+			statement = phoenixConnection.prepareStatement("delete from  truck.dangerous_events");
+			statement.execute();
+			
+		} catch (SQLException e) {
+			LOG.error("Error truncating Phoenexing tables");
+		} finally {
+			if(statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException e) {
+					LOG.error("Error closing connection", e);
+				}
+			}
+		}
+	}
+
 	public void truncateHBaseTables() {
 		try {
 			

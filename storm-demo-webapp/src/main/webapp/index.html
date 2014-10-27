@@ -25,7 +25,10 @@
       		<br>
         	<div>
             	<p><a href="http://vett-cluster01.cloud.hortonworks.com:8080/#/login">Ambari UI</a></p>
-            </div>
+                </div>
+                <div>
+                <p><a href="http://vett-cluster01.cloud.hortonworks.com:8080/#/experimental">Ambari Experimental</a></p>
+                </div>
           	<div>
             	<p><a href="http://vett-cluster02.cloud.hortonworks.com:8744">Storm UI</a></p>
           	</div>    
@@ -45,15 +48,19 @@
       			 <p><a href="http://george-security01.cloud.hortonworks.com:6080">HDP Security Portal</a></p>
       		</div>
       	</div>
-      	
-      	<div class="section1">
-      		<b>Data Management / Pipelines</b>
-      		<br>
-      		<br>
-      		<div>
-      			 <p><a href="http://vett-cluster03.cloud.hortonworks.com:15000">Falcon Data Pipelines</a></p>
-      		</div>
-      	</div>  
+
+        <div class="section1">
+                <b>MultiTenancy</b>
+                <br>
+                <br>
+                <div>
+                        <p><a href="http://vett-cluster01.cloud.hortonworks.com:8080/#/main/views/CAPACITY-SCHEDULER/0.1.0/CS_2">Capacity Scheduler Management-Ambari View</a></p>
+                </div>
+                <div>
+                        <p><a href="http://vett-cluster02.cloud.hortonworks.com:8088/cluster/scheduler">Capacity Scheduler Utilization View</a></p>
+                </div>
+
+       </div>
       	
       	<div class="section1">
       		<b>Stream Processing App</b>
@@ -74,52 +81,112 @@
       	</div>   
       	
       	<div class="section1">
-      		<b>Search App</b>
+      		<b>Search/Indexing Processing App</b>
       		<br>
       		<br>
       		<div>
       			<p><a href="http://george-search01.cloud.hortonworks.com:8983/solr">Solr Admin Console</a></p>	 
       		</div>
       		<div>
-      			 <p><a href="http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Truck%20Events%20Dashboard%20V3">Search UI - Banana</a></p>
+      			 <p><a href="http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Truck%20Events%20Dashboard%20V4">Search UI - Banana - Full Dashboard</a></p>
       		</div>
+                <div>
+                         <p><a href="http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Demo%20Trucking%20Events%20Dashboard%20V3">Search UI - Banana - Empty Dashboard</a></p>
+                </div>
+
+                <div>
+                         <p><a href="http://george-search01.cloud.hortonworks.com:8983/solr/truck_event_logs/update?stream.body=%3Cdelete%3E%3Cquery%3Eid:*%3C/query%3E%3C/delete%3E&commit=true">Delete Truck Index</a></p>
+                </div>
+
       		<div>
       			 
       		</div>
       	</div>          	     	    	
 
-      	<div class="section1">
-      		<b>Online App</b>
-      		<br>
-      		<br>
-      		<div>
-      			<p><a href="http://vett-cluster03.cloud.hortonworks.com:60010/master-status">HBase Admin</a></p>	 
-      		</div>
-
-      	</div>    
-      	
         <div class="section1">
-                <b>Stinger Initiative</b>
+                <b>Interactive Query Processing App</b>
                 <br>
                 <br>
                 <div>
                         <p><a href="http://stormapp01.cloud.hortonworks.com:8000/beeswax/tables/tpcds_bin_partitioned_orc_50">Hive Test Bench - TPCDS</a></p>
                 </div>
                 <div>
-                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/beeswax/execute/27">TPCDS-Query 27 (Execution Engine: MR2)</a></p>
+                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/beeswax/execute/49">TPCDS-Query 27 (Exec Engine: MR2)</a></p>
                 </div>
 
                 <div>
-                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/beeswax/execute/29">TPCDS-Query 27 (Execution Engine: TEZ)</a></p>
+                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/beeswax/execute/50">TPCDS-Query 27 (Exec Engine: TEZ)</a></p>
                 </div>
 
                 <div>
-                        <p><a href="http://vett-cluster01.cloud.hortonworks.com:8080/#/main/jobs/hue_20140907203535_c2b2b847-6e38-4e75-a5a9-36e75a236513">TPCDS-Query 27 TEZ Execution Plan</a></p>
+                        <p><a href="http://vett-cluster01.cloud.hortonworks.com:8080/#/main/jobs/hue_20140907203535_c2b2b847-6e38-4e75-a5a9-36e75a236513">TPCDS-Query 27 TEZ Exec Plan</a></p>
+                </div>
+
+        </div>       	
+
+        <div class="section1">
+                <b>ETL/Pig Processing App</b>
+                <br>
+                <br>
+                <div>
+                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/pig/3/">Solr Index Pig Job</a></p>
                 </div>
 
         </div>
-      	     	     	
-        
+
+     	
+        <div class="section1">
+                <b>Data Management / Pipelines</b>
+                <br>
+                <br>
+                <div>
+                         <p><a href="http://vett-cluster03.cloud.hortonworks.com:15000">Falcon Data Pipelines</a></p>
+                </div>
+        </div>
+
+        <div class="section1">
+                <b>Metadata and Lineage</b>
+                <br>
+                <br>
+                <div>
+                         <p><a href="http://stormapp01.cloud.hortonworks.com:8000/hcatalog/">HCatalog Metadata</a></p>
+                </div>
+
+                <div>
+                         <p><a href="http://vett-cluster03.cloud.hortonworks.com:15000/entity.html?type=process&id=solr-index-process">Falcon Lineage View</a></p>
+                </div>
+
+                <div>
+                         <p><a href="http://vett-cluster03.cloud.hortonworks.com:15000/api/graphs/lineage/vertices/all?user.name=dashboard">Falcon Titan Lineage Rest API </a></p>
+                </div>
+        </div>
+
+        <div class="section1">
+                <b>Data Science Analytics</b>
+                <br>
+                <br>
+                <div>
+                         <p><a href="http://stormapp01.cloud.hortonworks.com:8000/pig/18/">Feature Engineering</a></p>
+                </div>
+
+        </div>
+
+        <div class="section1">
+                <b>Data Ingestion</b>
+                <br>
+                <br>
+                <div>
+                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/jobsub/#edit-design/0">Sqoop: Customer RDBS Ingestion</a></p>
+                </div>
+                <div>
+                        <p><a href="http://vett-cluster02.cloud.hortonworks.com:8744/topology/truck-event-processor-2-1409776822/component/hdfs_bolt">Storm: Streaming Truck Sensor Ingest </a></p>
+                </div>
+                <div>
+                        <p><a href="http://stormapp01.cloud.hortonworks.com:8000/filebrowser/#/data/customer/tweets/landing">Flume: Tweet Ingestion</a></p>
+                </div>
+
+       </div>
+
       </div>
     </div>
 

@@ -15,7 +15,6 @@
  */
 package poc.hortonworks.storm.truck.web;
 
-import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
-import poc.hortonworks.domain.transport.TruckDriverViolationEvent;
 import poc.hortonworks.storm.streamgenerator.service.StreamGeneratorService;
 import poc.hortonworks.storm.truck.DriverEventsResponse;
 import poc.hortonworks.storm.truck.service.DriverEventsService;
@@ -50,7 +48,8 @@ public class TruckDriverEventsController {
 	@SubscribeMapping("/driverEvents")
 	public DriverEventsResponse getDriverEvents() throws Exception {
 		DriverEventsResponse response = new DriverEventsResponse();
-		response.setViolationEvents(driverEventsService.getLatestEventsForAllDrivers());
+		//response.setViolationEvents(driverEventsService.getLatestEventsForAllDrivers());
+		response.setViolationEvents(driverEventsService.getLatestEventsForAllDriversPhoenix());
 		response.setStartLat(streamingService.centerCoordinatesLat);
 		response.setStartLong(streamingService.centerCoordinatesLong);
 		response.setZoomLevel(streamingService.zoomLevel);

@@ -1,8 +1,16 @@
 package poc.hortonworks.storm.truck.service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -31,8 +39,11 @@ public class DriverEventsService {
 	
 	private static final Logger LOG = Logger.getLogger(DriverEventsService.class);
 	
+	private static final String PHOENIX_CONNECTION_URL = "jdbc:phoenix:vett-cluster01.cloud.hortonworks.com:2181:/hbase-unsecure";
+	
 	private HTableInterface driverEventsTable;
 	private HTableInterface driverEventsCountTable;
+	private Connection phoenixConnection;
 	
 	public DriverEventsService() {
 		try {
@@ -40,6 +51,9 @@ public class DriverEventsService {
 			HConnection connection = HConnectionManager.createConnection(config);
 			driverEventsTable = connection.getTable(DRIVER_EVENTS_TABLE);
 			driverEventsCountTable = connection.getTable(DRIVER_EVENTS_COUNT_TABLE);
+			
+			this.phoenixConnection = DriverManager.getConnection(PHOENIX_CONNECTION_URL);
+			this.phoenixConnection.setAutoCommit(true);			
 		} catch (Exception e) {
 			LOG.error("Error connectiong to HBase", e);
 			throw new RuntimeException("Error Connecting to HBase", e);
@@ -85,6 +99,55 @@ public class DriverEventsService {
 			throw new RuntimeException("Error getting driver events", e);
 		}
 	}
+	
+	public Collection<TruckDriverViolationEvent> getLatestEventsForAllDriversPhoenix() {
+		try {
+			
+			
+			PreparedStatement statement = phoenixConnection.prepareStatement("select * from  truck.dangerous_events order by driver_id asc, event_time desc");
+			ResultSet resultSet = statement.executeQuery();
+			Map<Integer, TruckDriverViolationEvent> eventsMap = new HashMap<Integer, TruckDriverViolationEvent> ();
+				
+			while(resultSet.next()) {
+				int driverId = resultSet.getInt("driver_id");
+				if(eventsMap.get(driverId) == null) {
+					
+					int truckId = resultSet.getInt("truck_id");
+					String truckDriverEventKey = driverId + "|" + truckId;
+					
+					
+					Timestamp eventTime = resultSet.getTimestamp("event_time");
+					long eventTimeLong = eventTime.getTime();
+					SimpleDateFormat sdf = new SimpleDateFormat();
+					String timeStampString = sdf.format(eventTimeLong);						
+					
+					double latitude = resultSet.getDouble("latitude");
+					double longitude = resultSet.getDouble("longitude");
+					
+					String lastInfraction = resultSet.getString("event_type");
+					long numberOfInfractions = getInfractionCountForDriver(driverId);
+					
+					String driverName = resultSet.getString("driver_name");
+					
+					int routeId = resultSet.getInt("route_id");
+					
+					String routeName = resultSet.getString("route_name");	
+					
+					TruckDriverViolationEvent event = new TruckDriverViolationEvent(truckDriverEventKey, driverId, truckId, eventTimeLong, 
+							timeStampString, longitude, latitude, lastInfraction, numberOfInfractions, driverName, routeId, routeName );
+		
+					eventsMap.put(driverId, event);					
+					
+				}
+				
+			}
+
+			return eventsMap.values();
+		} catch (Exception e) {
+			LOG.error("Error getting driver events", e);
+			throw new RuntimeException("Error getting driver events", e);
+		}
+	}	
 	
 	private long getInfractionCountForDriver(int driverId) {
 		try {

@@ -5,7 +5,7 @@ body {
 
 #main-content {
   max-width: 940px;
-  height: 750px;
+  height: 800px;
   padding: 10px 20px 0px;
   margin: 0 auto 20px;
   background-color: #fff;
@@ -20,7 +20,7 @@ body {
 
 .section1 {
 width: 250px;
-height: 200px;
+height: 175px;
 margin: 10px 10px 10px 10px;
 padding: 4px;
 border: 1px solid #000;
@@ -44,7 +44,7 @@ font-family: "Myriad Pro","Trebuchet MS","Helvetica Neue",Helvetica,Arial,Sans-S
   font-weight: bold;
 }
 
-.highlight { 
+.highlight {
 background: #972F2C
 
 }
